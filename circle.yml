@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - run:
+          name: Create virtual environment
+          command: |
+            python3 -m pip install pipenv
+            pipenv install
+            pipenv install codecov
+      - run:
+          name: Run tests
+          command: |
+            pipenv run make test-strict
+            pipenv run make coverage
+            pipenv run codecov
+      - store_artifacts:
+          path: .coverage.html/

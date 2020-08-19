@@ -1,0 +1,15 @@
+[run]
+branch = True
+omit =
+    stackmud/__main__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    def __repr__
+    raise NotImplementedError
+    if settings.DEBUG
+
+[html]
+directory = .coverage.html
