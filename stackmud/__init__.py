@@ -22,4 +22,5 @@ __author__ = "Will Hutcheson"
 __contact__ = "will@whutch.com"
 __homepage__ = "https://github.com/whutch/stackmud"
 __license__ = "MIT"
+__copyright__ = "Copyright (c) 2020 Will Hutcheson"
 __version__ = get_version()
