@@ -9,7 +9,7 @@ jobs:
           name: Create virtual environment
           command: |
             python3 -m pip install pipenv
-            pipenv install
+            pipenv install --dev
             pipenv install codecov
       - run:
           name: Run tests
