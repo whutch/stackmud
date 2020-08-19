@@ -10,6 +10,7 @@ jobs:
           command: |
             python3 -m pip install pipenv
             pipenv install --dev
+            pipenv run pip install -e .
             pipenv install codecov
       - run:
           name: Run tests

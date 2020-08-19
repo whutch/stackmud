@@ -6,8 +6,6 @@
 
 from telnetlib import Telnet
 
-from stackmud import get_version
-
 
 class TestMeta:
 
