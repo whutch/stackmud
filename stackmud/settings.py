@@ -62,23 +62,25 @@ class SettingManager(Manager):
     def __getattr__(self, name):
         if name.startswith("_"):
             return super().__getattribute__(name)
-        if not name in self._items:
+        if name not in self._items:
             raise AttributeError(f"no setting '{name}'")
         return self._items[name].value
 
     def __setattr__(self, name, value):
         if name.startswith("_"):
             return super().__setattr__(name, value)
-        if not name in self._items:
+        if name not in self._items:
             raise AttributeError(f"no setting '{name}'")
         setting = self._items[name]
         setting.value = value
 
     def register(self, name):
         _decorator = super().register(name)
+
         def decorator(setting_class):
             instance = setting_class(name)
             return _decorator(instance)
+
         return decorator
 
 
