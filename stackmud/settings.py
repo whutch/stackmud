@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Setting registration and management."""
 # Part of StackMUD (https://github.com/whutch/stackmud)
-# :copyright: (c) 2020 Will Hutcheson
+# :copyright: (c) 2022 Will Hutcheson
 # :license: MIT (https://github.com/whutch/stackmud/blob/master/LICENSE.txt)
 
 from .utils import Manager
@@ -15,7 +15,6 @@ class Setting:
 
     default = Unset  # This should NOT be a mutable value.
     read_only = False
-    read_only_once_set = False
 
     def __init__(self, name):
         self._name = name
@@ -32,10 +31,7 @@ class Setting:
 
     @value.setter
     def value(self, value):
-        if self.read_only:
-            raise ValueError(f"setting '{self._name}' is read-only")
-        if self.read_only_once_set and \
-                (self._value is self.default or self._value == self.default):
+        if self.read_only and self._value is not Unset:
             raise ValueError(f"setting '{self._name}' is read-only")
         self.validate(value)
         if (value is self._value or value == self._value):

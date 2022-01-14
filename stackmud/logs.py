@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 """Logging configuration and support."""
 # Part of StackMUD (https://github.com/whutch/stackmud)
-# :copyright: (c) 2020 Will Hutcheson
+# :copyright: (c) 2022 Will Hutcheson
 # :license: MIT (https://github.com/whutch/stackmud/blob/master/LICENSE.txt)
 
-from datetime import datetime
 import logging
-from logging.config import dictConfig
+from logging.handlers import TimedRotatingFileHandler
 from os import makedirs, path
-import re
 
 from .settings import Setting, settings
 
@@ -33,14 +31,24 @@ class LogPathSetting(LogSetting):
             makedirs(parent_dir)
 
 
+@settings.register("LOG_MESSAGE_FORMAT_CONSOLE")
+class LogMessageFormatConsoleSetting(LogSetting):
+    default = "%(asctime)s.%(msecs)03d  %(name)-12s  %(levelname)-8s %(message)s"
+
+
 @settings.register("LOG_TIME_FORMAT_CONSOLE")
 class LogTimeFormatConsoleSetting(LogSetting):
-    default = "%H:%M:%S,%F"
+    default = "%H:%M:%S"
+
+
+@settings.register("LOG_MESSAGE_FORMAT_FILE")
+class LogMessageFormatFileSetting(LogSetting):
+    default = "%(asctime)s.%(msecs)03d  %(name)-12s  %(levelname)-8s %(message)s"
 
 
 @settings.register("LOG_TIME_FORMAT_FILE")
 class LogTimeFormatFileSetting(LogSetting):
-    default = "%Y-%m-%d %a %H:%M:%S,%F"
+    default = "%Y-%m-%d %a %H:%M:%S"
 
 
 @settings.register("LOG_ROTATE_WHEN")
@@ -59,74 +67,36 @@ class LogUTCTimesSetting(LogSetting):
 
 
 def update_logging_config():
-    dictConfig({
-        "version": 1,
-        "disable_existing_loggers": True,
-        "formatters": {
-            "file": {
-                "()": LogFormatter,
-                "format": "%(asctime)s  %(name)-12s  %(levelname)-8s %(message)s",
-                "datefmt": settings.LOG_TIME_FORMAT_FILE,
-            },
-            "console": {
-                "()": LogFormatter,
-                "format": "%(asctime)s  %(name)-10s  %(levelname)-8s %(message)s",
-                "datefmt": settings.LOG_TIME_FORMAT_CONSOLE,
-            },
-        },
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "level": "DEBUG",
-                "formatter": "console",
-            },
-            "file": {
-                "class": "logging.handlers.TimedRotatingFileHandler",
-                "level": "DEBUG",
-                "formatter": "file",
-                "filename": settings.LOG_PATH,
-                "when": settings.LOG_ROTATE_WHEN,
-                "interval": settings.LOG_ROTATE_INTERVAL,
-                "utc": settings.LOG_UTC_TIMES,
-            }
-        },
-        "root": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
-        },
-    })
-
-
-class LogFormatter(logging.Formatter):
-    """Custom formatter for our logging handlers."""
-
-    def formatTime(self, record, datefmt=None):
-        """Convert a LogRecord's creation time to a string.
-
-        If `datefmt` is provided, it will be used to convert the time through
-        datetime.strftime.  If not, it falls back to the formatTime method of
-        logging.Formatter, which converts the time through time.strftime.
-
-        This custom processing allows for the full range of formatting options
-        provided by datetime.strftime as opposed to time.strftime.
-
-        There is additional parsing done to allow for the %F argument to be
-        converted to 3-digit zero-padded milliseconds, as an alternative to
-        the %f argument's usual 6-digit microseconds (because frankly that's
-        just too many digits).
-
-        :param LogRecord record: The record to be formatted
-        :param str datefmt: A formatting string to be passed to strftime
-        :returns str: A formatted time string
-
-        """
-        if datefmt:
-            msecs = str(int(record.msecs)).zfill(3)
-            datefmt = re.sub(r"(?<!%)%F", msecs, datefmt)
-            parsed_time = datetime.fromtimestamp(record.created)
-            return parsed_time.strftime(datefmt)
-        else:
-            return super().formatTime(record)
+    # Remove any existing handlers
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers:
+        root_logger.removeHandler(handler)
+    # Create the console handler
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter(
+        fmt = settings.LOG_MESSAGE_FORMAT_CONSOLE,
+        datefmt = settings.LOG_TIME_FORMAT_CONSOLE,
+    )
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
+    # Create the file handler
+    file_handler = TimedRotatingFileHandler(
+        settings.LOG_PATH,
+        when = settings.LOG_ROTATE_WHEN,
+        interval = settings.LOG_ROTATE_INTERVAL,
+        backupCount = 0,
+        delay = True,
+        utc = settings.LOG_UTC_TIMES,
+        atTime = None,
+    )
+    file_formatter = logging.Formatter(
+        fmt = settings.LOG_MESSAGE_FORMAT_FILE,
+        datefmt = settings.LOG_TIME_FORMAT_FILE,
+    )
+    file_handler.setFormatter(file_formatter)
+    root_logger.addHandler(file_handler)
+    # Set the default level for all handlers
+    root_logger.setLevel(logging.DEBUG)
 
 
 def get_logger(*args, **kwargs):
