@@ -28,6 +28,6 @@ test: clean-test
 	py.test --flake8 stackmud tests
 
 test-strict: clean-test
-	py.test --flake8 -x --strict stackmud tests
+	py.test --flake8 -x --strict-markers stackmud tests
 
 tests: test

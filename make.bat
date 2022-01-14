@@ -87,5 +87,5 @@ EXIT /B 0
 :test-strict
     CALL :clean-test
     ECHO Running strict tests.
-    py.test --flake8 -x --strict stackmud tests
+    py.test --flake8 -x --strict-markers stackmud tests
 EXIT /B 0

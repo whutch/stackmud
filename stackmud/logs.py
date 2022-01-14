@@ -74,24 +74,24 @@ def update_logging_config():
     # Create the console handler
     console_handler = logging.StreamHandler()
     console_formatter = logging.Formatter(
-        fmt = settings.LOG_MESSAGE_FORMAT_CONSOLE,
-        datefmt = settings.LOG_TIME_FORMAT_CONSOLE,
+        fmt=settings.LOG_MESSAGE_FORMAT_CONSOLE,
+        datefmt=settings.LOG_TIME_FORMAT_CONSOLE,
     )
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
     # Create the file handler
     file_handler = TimedRotatingFileHandler(
         settings.LOG_PATH,
-        when = settings.LOG_ROTATE_WHEN,
-        interval = settings.LOG_ROTATE_INTERVAL,
-        backupCount = 0,
-        delay = True,
-        utc = settings.LOG_UTC_TIMES,
-        atTime = None,
+        when=settings.LOG_ROTATE_WHEN,
+        interval=settings.LOG_ROTATE_INTERVAL,
+        backupCount=0,
+        delay=True,
+        utc=settings.LOG_UTC_TIMES,
+        atTime=None,
     )
     file_formatter = logging.Formatter(
-        fmt = settings.LOG_MESSAGE_FORMAT_FILE,
-        datefmt = settings.LOG_TIME_FORMAT_FILE,
+        fmt=settings.LOG_MESSAGE_FORMAT_FILE,
+        datefmt=settings.LOG_TIME_FORMAT_FILE,
     )
     file_handler.setFormatter(file_formatter)
     root_logger.addHandler(file_handler)

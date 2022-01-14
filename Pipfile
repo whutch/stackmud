@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 coverage = "*"
 ipython = "*"
+flake8 = "<4"
 pytest = "*"
 pytest-cov = "*"
 pytest-flake8 = "*"

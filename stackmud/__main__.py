@@ -6,7 +6,6 @@
 
 from . import get_version
 from .logs import get_logger
-from .settings import settings
 
 
 logger = get_logger("main")
